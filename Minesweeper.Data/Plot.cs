@@ -8,23 +8,36 @@ namespace Minesweeper.Data
 {
     public class Plot
     {
+        public bool IsFlagged { get; private set; }
         public bool IsCovered { get; private set; }
         public bool IsMine { get; private set; }
 
         public Plot()
         {
             IsCovered = true;
+            IsFlagged = false;
             IsMine = false;
         }
 
-        public void PlantMine()
+        internal void PlantMine()
         {
             IsMine = true;
         }
 
-        public void Reveal()
+        internal void Reveal()
         {
-            IsCovered = false;
+            if (!IsFlagged)
+            {
+                IsCovered = false;
+            }
+        }
+
+        internal void ToggleFlag()
+        {
+            if (IsCovered)
+            {
+                IsFlagged = !IsFlagged;
+            }
         }
     }
 }

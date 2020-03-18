@@ -7,7 +7,7 @@ namespace Minesweeper.Textapp
     {
         private static int width = 30;
         private static int height = 30;
-        private static int mines = 120;
+        private static int mines = 10;
         private static Minefield minefield;
         static void Main(string[] args)
         {
@@ -22,11 +22,18 @@ namespace Minesweeper.Textapp
         {
             DrawMineField();
             Console.WriteLine($"Press Any Key to Continue");
-            Console.ReadKey();
+            var keyPressed = Console.ReadKey().Key;
             var random = new Random();
             int x = random.Next(0, minefield.Cols);
             int y = random.Next(0, minefield.Rows);
-            minefield.RevealPlot(x, y);
+            if (keyPressed == ConsoleKey.R)
+            {
+                minefield.RevealPlot(x, y);
+            }
+            else if (keyPressed == ConsoleKey.F)
+            {
+                minefield.TogglePlotFlag(x, y);
+            }
         }
 
         private static void DrawMineField()
@@ -39,7 +46,14 @@ namespace Minesweeper.Textapp
                     Console.Write(' ');
                     if (minefield.Plots[x, y].IsCovered)
                     {
-                        Console.Write('+');
+                        if (minefield.Plots[x, y].IsFlagged)
+                        {
+                            Console.Write('F');
+                        } 
+                        else
+                        {
+                            Console.Write('.');
+                        }
                     }
                     else if (minefield.Plots[x, y].IsMine)
                     {
@@ -73,8 +87,7 @@ namespace Minesweeper.Textapp
             Console.BufferHeight = Console.WindowHeight;
             
             Console.CursorVisible = false;
-            minefield = new Minefield(width, height);
-            minefield.PlaceMines(mines);
+            minefield = new Minefield(width, height, mines);
         }
     }
     

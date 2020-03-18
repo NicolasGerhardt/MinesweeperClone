@@ -12,7 +12,7 @@ namespace Minesweeper.Data
         public int Rows { get; private set; }
         public Plot[,] Plots { get; private set; }
 
-        public Minefield(int cols, int rows)
+        public Minefield(int cols, int rows, int numOfMines)
         {
             //make sure only valid values are passed
             if (cols < 1 || rows < 1) throw new ArgumentException("Must have at least 1 Row and Col");
@@ -20,29 +20,26 @@ namespace Minesweeper.Data
             //initalized Rows, Cols and Minefield's mines
             Cols = cols;
             Rows = rows;
-            Plots = GenerateEmptyPlots();
+            Plots = GeneratePlots(numOfMines);
         }
 
-        private Plot[,] GenerateEmptyPlots()
+
+        private Plot[,] GeneratePlots(int numOfMines)
         {
-            var emptyPlots = new Plot[Cols, Rows];
+            //make sure only valid values are passed
+            if (numOfMines >= Cols * Rows || numOfMines < 1) throw new ArgumentException($"Must have betwen 1 and {Cols * Rows - 1} mines in this Minefield");
+
+            //start with empty field
+            var generateedPlots = new Plot[Cols, Rows];
+
             for (int x = 0; x < Cols; x++)
             {
                 for (int y = 0; y < Rows; y++)
                 {
-                    emptyPlots[x, y] = new Plot();
+                    generateedPlots[x, y] = new Plot();
                 }
             }
-            return emptyPlots;
-        }
-
-        public void PlaceMines(int numOfMines)
-        {
-            //make sure only valid values are passed
-            if (numOfMines > Plots.Length || numOfMines < 1) throw new ArgumentException($"Must place betwen 1 and {Plots.Length} mines in this Minefield");
-
-            //clear all old mines
-            Plots = GenerateEmptyPlots();
+            
 
             //create randomizer object
             var rand = new Random();
@@ -55,12 +52,23 @@ namespace Minesweeper.Data
                 int y = rand.Next(0, Rows);
 
                 // if no mine at location, then place mine
-                if (!Plots[x, y].IsMine)
+                if (!generateedPlots[x, y].IsMine)
                 {
-                    Plots[x, y].PlantMine();
+                    generateedPlots[x, y].PlantMine();
                     numOfMines--;
                 }
             }
+
+            return generateedPlots;
+        }
+
+        public void TogglePlotFlag(int col, int row)
+        {
+            //validate input
+            validColRow(col, row);
+
+            Plots[col, row].ToggleFlag();
+
         }
 
         /// <summary>
@@ -101,8 +109,10 @@ namespace Minesweeper.Data
 
         private void validColRow(int col, int row)
         {
-            if (col >= Cols || col < 0) throw new ArgumentException($"Column must be between 0 and {Cols - 1}");
-            if (row >= Rows || row < 0) throw new ArgumentException($"Row must be between 0 and {Rows - 1}");
+            if (col < 0) throw new ArgumentException($"Column must be a positive number");
+            if (row < 0) throw new ArgumentException($"Row must be a positive number");
+            if (col >= Cols) throw new ArgumentException($"Column must be smaller than {Cols}");
+            if (row >= Rows) throw new ArgumentException($"Row must be smaller than {Rows}");
         }
 
 
@@ -119,7 +129,7 @@ namespace Minesweeper.Data
             validColRow(col, row);
 
             //if already uncovered, no further action is needed
-            if (!Plots[col, row].IsCovered)
+            if (!Plots[col, row].IsCovered || Plots[col, row].IsFlagged)
             {
                 return false;
             }
