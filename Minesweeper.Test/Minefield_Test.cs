@@ -37,7 +37,7 @@ namespace Minesweeper.Test
         }
 
         [Theory]
-        [InlineData(1, 1, 0)]
+        [InlineData(1, 1, 1)]
         [InlineData(10, 10, 100)]
         [InlineData(7, 10, 25)]
         [InlineData(100, 12, 120)]
@@ -58,6 +58,18 @@ namespace Minesweeper.Test
             }
 
             Assert.Equal(numOfMines, countOfMines);
+        }
+
+        [Theory]
+        [InlineData(1, 1, -1)]
+        [InlineData(10, 10, 1000)]
+        [InlineData(7, 10, -25)]
+        [InlineData(100, 12, 12000)]
+        public void PlaceMines_InvalidNumberOfMines_ThrowsException(int cols, int rows, int numOfMines)
+        {
+            var minefield = new Minefield(cols, rows);
+
+            Assert.Throws<ArgumentException>(() => minefield.PlaceMines(numOfMines));
         }
     }
 }
