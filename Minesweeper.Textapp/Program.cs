@@ -23,7 +23,10 @@ namespace Minesweeper.Textapp
             DrawMineField();
             Console.WriteLine($"Press Any Key to Continue");
             Console.ReadKey();
-
+            var random = new Random();
+            int x = random.Next(0, minefield.Cols);
+            int y = random.Next(0, minefield.Rows);
+            minefield.RevealPlot(x, y);
         }
 
         private static void DrawMineField()

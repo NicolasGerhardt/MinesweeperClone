@@ -55,7 +55,7 @@ namespace Minesweeper.Data
                 int y = rand.Next(0, Rows);
 
                 // if no mine at location, then place mine
-                if (!Plots[x,y].IsMine)
+                if (!Plots[x, y].IsMine)
                 {
                     Plots[x, y].PlantMine();
                     numOfMines--;
@@ -73,8 +73,7 @@ namespace Minesweeper.Data
         public int CountNeighboringMines(int col, int row)
         {
             //validate input
-            if (col >= Cols || col < 0) throw new ArgumentException($"Column must be between 0 and {Cols}");
-            if (row >= Rows || row < 0) throw new ArgumentException($"Row must be between 0 and {Cols}");
+            validColRow(col, row);
 
             // if spot is a mine return -1
             if (Plots[col, row].IsMine) return -1;
@@ -100,8 +99,57 @@ namespace Minesweeper.Data
             return count;
         }
 
+        private void validColRow(int col, int row)
+        {
+            if (col >= Cols || col < 0) throw new ArgumentException($"Column must be between 0 and {Cols - 1}");
+            if (row >= Rows || row < 0) throw new ArgumentException($"Row must be between 0 and {Rows - 1}");
+        }
+
+
+        /// <summary>
+        /// Will mark the plot as reveiled. Returns True if Mine and Returns false if not mine.
+        /// If spot has no mines next to it, then it will reveil all neighbors
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
         public bool RevealPlot(int col, int row)
         {
+            //validate inputs
+            validColRow(col, row);
+
+            //if already uncovered, no further action is needed
+            if (!Plots[col, row].IsCovered)
+            {
+                return false;
+            }
+
+            // uncover plot
+            Plots[col, row].Reveal();
+
+            // if plot is mine return false
+            if (Plots[col, row].IsMine)
+            {
+                return true;
+            }
+
+            // if return false for neighboring mines. 
+            if (CountNeighboringMines(col, row) > 0)
+            {
+                return false;
+            }
+
+            for (int x = col - 1; x <= col + 1; x++)
+            {
+                for (int y = row - 1; y <= row + 1; y++)
+                {
+                    if (x >= 0 && x < Cols && y >= 0 && y < Rows)
+                    {
+                        RevealPlot(x, y);
+                    }
+                }
+            }
+
             return false;
         }
     }
