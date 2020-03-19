@@ -88,15 +88,15 @@ namespace Minesweeper.Data
 
             int count = 0;
             //check above, below and digonally for mines.
-            for (int x = col - 1; x <= col + 1; x++)
+            for (int xOffset = col - 1; xOffset <= col + 1; xOffset++)
             {
-                for (int y = row - 1; y <= row + 1; y++)
+                for (int yOFfeset = row - 1; yOFfeset <= row + 1; yOFfeset++)
                 {
                     // make sure you are on the grid
-                    if (x >= 0 && x < Cols && y >= 0 && y < Rows)
+                    if (xOffset >= 0 && xOffset < Cols && yOFfeset >= 0 && yOFfeset < Rows)
                     {
                         //if neighbor is a mine, add it to the count
-                        if (Plots[x, y].IsMine)
+                        if (Plots[xOffset, yOFfeset].IsMine)
                         {
                             count++;
                         }
@@ -115,39 +115,49 @@ namespace Minesweeper.Data
             if (row >= Rows) throw new ArgumentException($"Row must be smaller than {Rows}");
         }
 
+        public bool IsGameOver()
+        {
+
+            foreach (Plot plot in Plots)
+            {
+                if (!plot.IsCovered && plot.IsMine)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         /// <summary>
-        /// Will mark the plot as reveiled. Returns True if Mine and Returns false if not mine.
+        /// Will mark the plot as reveiled.
         /// If spot has no mines next to it, then it will reveil all neighbors
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        public bool RevealPlot(int col, int row)
+        public void RevealPlot(int col, int row)
         {
-            //validate inputs
+            // validate inputs
             validColRow(col, row);
 
-            //if already uncovered, no further action is needed
-            if (!Plots[col, row].IsCovered || Plots[col, row].IsFlagged)
-            {
-                return false;
-            }
+            var plot = Plots[col, row];
+
+            // if already uncoverd, nothing to do here
+            if (!plot.IsCovered) return;
+
+            // Do not reveil flagged plots
+            if (plot.IsFlagged) return;
 
             // uncover plot
-            Plots[col, row].Reveal();
+            plot.Reveal();
 
-            // if plot is mine return false
-            if (Plots[col, row].IsMine)
-            {
-                return true;
-            }
+            // if plot is mine return
+            if (plot.IsMine) return;
 
-            // if return false for neighboring mines. 
-            if (CountNeighboringMines(col, row) > 0)
-            {
-                return false;
-            }
+            // Any neighboringMines return 
+            if (CountNeighboringMines(col, row) > 0) return;
+            
 
             for (int x = col - 1; x <= col + 1; x++)
             {
@@ -159,8 +169,6 @@ namespace Minesweeper.Data
                     }
                 }
             }
-
-            return false;
         }
     }
 }

@@ -19,12 +19,12 @@ namespace Minesweeper.Data
             IsMine = false;
         }
 
-        internal void PlantMine()
+        public void PlantMine()
         {
             IsMine = true;
         }
 
-        internal void Reveal()
+        public void Reveal()
         {
             if (!IsFlagged)
             {
@@ -32,12 +32,32 @@ namespace Minesweeper.Data
             }
         }
 
-        internal void ToggleFlag()
+        public void ToggleFlag()
         {
             if (IsCovered)
             {
                 IsFlagged = !IsFlagged;
             }
+        }
+
+        public override string ToString()
+        {
+            string output = string.Empty;
+
+            if (IsFlagged)
+            {
+                output += 'F';
+            }
+            else if (IsCovered)
+            {
+                output += '.';
+            }
+            else if (IsMine)
+            {
+                output += 'M';
+            }
+
+            return output;
         }
     }
 }

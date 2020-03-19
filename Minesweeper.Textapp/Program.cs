@@ -7,7 +7,7 @@ namespace Minesweeper.Textapp
     {
         private static int width = 30;
         private static int height = 30;
-        private static int mines = 10;
+        private static int mines = 30;
         private static Minefield minefield;
         static void Main(string[] args)
         {
@@ -21,7 +21,10 @@ namespace Minesweeper.Textapp
         private static void Loop()
         {
             DrawMineField();
-            Console.WriteLine($"Press Any Key to Continue");
+            Console.WriteLine("[F] Flag Random");
+            Console.WriteLine("[R] Reveal Random");
+            Console.WriteLine("[M] Make Random Minefield");
+            Console.WriteLine("[A] Reveal All");
             var keyPressed = Console.ReadKey().Key;
             var random = new Random();
             int x = random.Next(0, minefield.Cols);
@@ -34,6 +37,17 @@ namespace Minesweeper.Textapp
             {
                 minefield.TogglePlotFlag(x, y);
             }
+            else if (keyPressed == ConsoleKey.M)
+            {
+                minefield = new Minefield(width, height, mines);
+            }
+            else if (keyPressed == ConsoleKey.A)
+            {
+                foreach (Plot plot in minefield.Plots)
+                {
+                    plot.Reveal();
+                }
+            }
         }
 
         private static void DrawMineField()
@@ -43,35 +57,24 @@ namespace Minesweeper.Textapp
             {
                 for (int y = 0; y < minefield.Rows; y++)
                 {
-                    Console.Write(' ');
-                    if (minefield.Plots[x, y].IsCovered)
-                    {
-                        if (minefield.Plots[x, y].IsFlagged)
-                        {
-                            Console.Write('F');
-                        } 
-                        else
-                        {
-                            Console.Write('.');
-                        }
-                    }
-                    else if (minefield.Plots[x, y].IsMine)
-                    {
-                        Console.Write('M');
-                    }
-                    else
+                    Console.Write(' '); // horizontal space between characters
+
+                    string s = minefield.Plots[x, y].ToString();
+                    if (string.IsNullOrWhiteSpace(s))
                     {
                         int count = minefield.CountNeighboringMines(x, y);
-
                         if (count == 0)
                         {
-                            Console.Write('_');
+                            s = ".";
                         }
                         else
                         {
-                            Console.Write(count);
+                            s = count.ToString();
                         }
                     }
+                    
+                    Console.Write(s);
+                    
                 }
                 Console.Write('\n');
             }
@@ -80,7 +83,7 @@ namespace Minesweeper.Textapp
         private static void Setup()
         {
             
-            Console.Title = "Minesweeper Clone (console viewer)";
+            Console.Title = "Minesweeper Clone (console version)";
             Console.WindowWidth = width * 3;
             Console.BufferWidth = Console.WindowWidth;
             Console.WindowHeight = height + 5;
